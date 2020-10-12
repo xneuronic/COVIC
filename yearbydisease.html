@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Analize COVIC20_Year</title>
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/icons.css">
+    <link rel="stylesheet" href="css/responsee.css">
+    <link rel="stylesheet" href="css/template-style.css">
+
+    <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui.min.js"></script> 
+    <style>
+     input[type="text"] {
+      float: center;
+      /*  display:block; */
+      height: 50px;
+      background: #FFFFFF;
+      border-radius: 5px;
+      border-color: #ddfd1d;
+      text-align: center;
+    }  
+    select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -ms-appearance: none;
+  appearance: none;
+  outline: 0;
+  box-shadow: none;
+  border: 0 !important;
+  background: #2c3e50;
+  background-image: none;
+}
+/* Remove IE arrow */
+select::-ms-expand {
+  display: none;
+}
+/* Custom Select */
+.select {
+  position: relative;
+  display: flex;
+  width: 20em;
+  height: 3em;
+  line-height: 3;
+  background: #2c3e50;
+  overflow: hidden;
+  border-radius: .25em;
+}
+select {
+  flex: 1;
+  padding: 0 .5em;
+  color: #fff;
+  cursor: pointer;
+}
+/* Arrow */
+.select::after {
+  content: '\25BC';
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0 1em;
+  background: #34495e;
+  cursor: pointer;
+  pointer-events: none;
+  -webkit-transition: .25s all ease;
+  -o-transition: .25s all ease;
+  transition: .25s all ease;
+}
+/* Transition */
+.select:hover::after {
+  color: #f39c12;
+}
+    </style>
+  </head>
+  
+  <body class="size-1140">
+  <!-- HEADER -->
+    <header role="banner" class="position-absolute">    
+      <!-- Top Navigation -->
+      <nav class="background-transparent background-transparent-hightlight full-width sticky">
+        <div class="s-12 l-2">
+          <a href="main.html" class="logo">
+            <!-- Logo White Version -->
+            <img class="logo-white" src="img/COVIC20(white).png" alt="">
+            <!-- Logo Dark Version -->
+            <img class="logo-dark" src="img/COVIC20(dark).png" alt="">
+          </a>
+        </div>
+        <div class="top-nav s-12 l-10">
+          <p class="nav-text"></p>
+          <ul class="right chevron">
+            <li><a href="main.html">COVIC20</a></li>
+            <li><a href="teamintro.html">팀원소개</a></li>
+            <li><a>통계</a>
+              <ul>    
+                    <li><a href="Analize.html">연령/성별 별 운동치료받은 환자의 질병 분포도</a></li>
+                    <li><a href="Treatment cost.html">질병별 운동치료 평균금액(1회당)</a></li>
+                    <li><a href="yearbydisease.html">15~18년간 근골격계 질병 추이</a></li>
+              </ul>
+            </li>
+            <li><a href="Rehabilitation exercise.html">자가 재활 치료</a></li>
+            <li><a href="xnewronic.html">회사 소개</a></li>
+          </ul>
+        </div>
+      </nav>
+    </header>
+   
+    <!-- MAIN -->
+    <main role="main">
+      <!-- Content -->
+      <article>
+        <header class="section background-dark">
+          <div class="line"><center>        
+            <h1 class="text-white margin-top-bottom-40 text-size-60 text-line-height-1">연도별 질환 증가표</h1></center>
+
+          </div>  
+        </header>
+        <div class="section background-white"> 
+          <div class="line">  
+           <!--년도별 이미지-->
+        <div class="line">
+        <div class="container">
+          <form action method="POST" action="yearbydisease.html">
+
+            <select name="result" id="slct" style="width: 150px; height: 50px;">
+              <option value="Neck disc" selected>목디스크</option>
+              <option value="Herniated disc">허리디스크</option>
+              <option value="Frozen shoulder">오십견</option>
+              <option value="Straight neck syndrome">일자목증후군</option>
+              <option value="Cervical spine disease">경추질환</option>
+              <option value="osteoporosis">골다공증</option>
+              <option value="Fracture">골절</option>
+              <option value="joint">관절</option>
+              <option value="Femoral tibia fracture">대퇴부경골절</option>
+              <option value="Rheumatoid arthritis">류마티스</option>
+              <option value="Ankle sprain">발목염좌긴장</option>
+              <option value="Cartilage damage">연골손상</option>
+              <option value="Spine disease">척추질환</option>
+              <option value="ventilation">통풍</option>
+            </select>
+            <button type="submit" class="button">전송</button>
+          </form> 
+        <?
+            $result = $_POST['result'];
+            switch($result){
+              case 'Neck disc':
+              echo "<img src='./img/진료인원추이/목디스크.PNG'></img>";
+              break;
+              case 'Herniated disc':
+              echo "<img src='./img/진료인원추이/허리디스크.PNG'></img>";
+              break;
+              case 'Frozen shoulder':
+              echo "<img src='./img/진료인원추이/오십견.PNG'></img>";
+              break;
+              case 'Straight neck syndrome':
+              echo "<img src='./img/진료인원추이/일자목증후군.PNG'></img>";
+              break;
+              case 'Cervical spine disease':
+              echo "<img src='./img/진료인원추이/경추질환.PNG'></img>";
+              break;
+              case 'osteoporosis':
+              echo "<img src='./img/진료인원추이/골다공증.PNG'></img>";
+              break;
+              case 'Fracture':
+              echo "<img src='./img/진료인원추이/골절.PNG'></img>";
+              break;
+              case 'joint':
+              echo "<img src='./img/진료인원추이/관절.PNG'></img>";
+              break;
+              case 'Femoral tibia fracture':
+              echo "<img src='./img/진료인원추이/대퇴부경골절.PNG'></img>";
+              break;
+              case 'Rheumatoid arthritis':
+              echo "<img src='./img/진료인원추이/류마티스.PNG'></img>";
+              break;
+              case 'Ankle sprain':
+              echo "<img src='./img/진료인원추이/발목염좌긴장.PNG'></img>";
+              break;
+              case 'Cartilage damage':
+              echo "<img src='./img/진료인원추이/연골손상.PNG'></img>";
+              break;
+              case 'Spine disease':
+              echo "<img src='./img/진료인원추이/척추질환.PNG'></img>";
+              break;
+              case 'ventilation':
+              echo "<img src='./img/진료인원추이/통풍.PNG'></img>";
+              break;
+            }
+          ?>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+      <!-- Contact Us -->
+      <div class="background-primary padding text-center">
+        <p class="h1">Contact Us: 010 6410 4604</p>                                                                        
+      </div>
+      
+      <!-- Main Footer -->
+      <section class="background-dark full-width">
+        <!-- Map -->
+        <div class="s-12 m-12 l-6 margin-m-bottom-2x">
+          <div class="s-12 grayscale center">  	  
+            <iframe src="https://maps.google.com/maps?q=%EA%B0%95%EB%A6%89%EC%9B%90%EC%A3%BC%EB%8C%80%20%EC%9B%90%EC%A3%BC&t=&z=17&ie=UTF8&iwloc=&output=embed" width="100%" height="450" frameborder="0" style="border:0"></iframe>
+          </div>
+        </div>
+        
+        <!-- Collumn 2 -->
+        <div class="s-12 m-12 l-6 margin-m-bottom-2x">
+          <div class="padding-2x">
+            <div class="line">              
+              <div class="float-left">
+                  <i class="icon-sli-location-pin text-primary icon3x"></i>
+                </div>
+                <div class="margin-left-70 margin-bottom-30">
+                  <h3 class="margin-bottom-0">Company Address</h3>
+                  <p>강원도 원주시 흥업면 남원로 150<br>
+                     산학지원관 W4 2층 220호
+                  </p>               
+                </div>
+                <div class="float-left">
+                  <i class="icon-sli-envelope text-primary icon3x"></i>
+                </div>
+                <div class="margin-left-70 margin-bottom-30">
+                  <h3 class="margin-bottom-0">E-mail</h3>
+                  <p>xneuronic@gmail.com<br>
+                  </p>              
+                </div>
+                <div class="float-left">
+                  <i class="icon-sli-phone text-primary icon3x"></i>
+                </div>
+                <div class="margin-left-70">
+                  <h3 class="margin-bottom-0">Phone Numbers</h3>
+                  <p>010 6410 4604<br>
+                     010 3597 2798<br>
+                     010 6766 1440<br>
+                     010 3394 2957<br>
+                     010 9736 4574
+                  </p>             
+                </div>
+            </div>
+          </div>
+        </div>  
+      </section>
+      <hr class="break margin-top-bottom-0" style="border-color: rgba(0, 38, 51, 0.80);">
+      
+      <!-- Bottom Footer -->
+      <section class="padding background-dark full-width">
+        <div class="s-12 l-6">
+          <p class="text-size-12">상호: Neuronic | 대표자명: 박도영 </p>
+          <p class="text-size-12">주소: 강원도 원주시 흥업면 남원로 150 산학지원관 W4 220호 | 대표번호: +82-10-6410-4604</p>
+        </div>
+        <div class="s-12 l-6">
+          <a class="right text-size-12" href="http://www.myresponsee.com" title="Responsee - lightweight responsive framework">Design and coding<br> by COVIC-20 Team</a>
+        </div>
+      </section>
+    </footer>
+    <script type="text/javascript" src="js/responsee.js"></script>
+    <script type="text/javascript" src="owl-carousel/owl.carousel.js"></script>
+    <script type="text/javascript" src="js/template-scripts.js"></script>
+  </body>
+</html>

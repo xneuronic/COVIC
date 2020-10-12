@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+    <title>COVIC20_어깨 재활 운동</title>
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/icons.css">
+    <link rel="stylesheet" href="css/responsee.css">  
+    <link rel="stylesheet" href="css/template-style.css">
+    
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link href='https://fonts.googleapis.com/css?family=Playfair+Display&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,700,800&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+    <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui.min.js"></script>      
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/earlyaccess/notosanskr.css">
+    
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+     integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+     crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+     integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+     crossorigin="anonymous"></script>
+   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+     integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+     crossorigin="anonymous"></script>
+   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/pose@0.8/dist/teachablemachine-pose.min.js"></script>
+   <script type="text/javascript">
+    // More API functions here:
+    // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/pose
+
+    // the link to your model provided by Teachable Machine export panel
+    const URL = "./my_model2/my_model2/";
+    let model, webcam, ctx, labelContainer, maxPredictions;
+
+    async function init() {
+        const modelURL = URL + "model.json";
+        const metadataURL = URL + "metadata.json";
+
+        // load the model and metadata
+        // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
+        // Note: the pose library adds a tmPose object to your window (window.tmPose)
+        model = await tmPose.load(modelURL, metadataURL);
+        maxPredictions = model.getTotalClasses();
+
+        // Convenience function to setup a webcam
+        const size = 500;
+        const flip = true; // whether to flip the webcam
+        webcam = new tmPose.Webcam(size, size, flip); // width, height, flip
+        await webcam.setup(); // request access to the webcam
+        await webcam.play();
+        window.requestAnimationFrame(loop);
+
+        // append/get elements to the DOM
+        const canvas = document.getElementById("canvas");
+        canvas.width = size; canvas.height = size;
+        ctx = canvas.getContext("2d");
+        labelContainer = document.getElementById("label-container");
+        for (let i = 0; i < maxPredictions; i++) { // and class labels
+            labelContainer.appendChild(document.createElement("div"));
+        }
+    }
+
+    async function loop(timestamp) {
+        webcam.update(); // update the webcam frame
+        await predict();
+        window.requestAnimationFrame(loop);
+    }
+    var progress = 327
+    var status = "stand"
+    var count = 0
+    async function predict() {
+        // Prediction #1: run input through posenet
+        // estimatePose can take in an image, video or canvas html element
+        const { pose, posenetOutput } = await model.estimatePose(webcam.canvas);
+        // Prediction 2: run input through teachable machine classification model
+        const prediction = await model.predict(posenetOutput);
+        if (prediction[0].probability.toFixed(2) > 0.90) {
+            if (status == "left" || status =="right") {
+                count++
+                var audio = new Audio(count % 10 + '.mp3');
+                audio.play();
+                progress = progress-32.7
+                if(progress <= 0) {
+                    progress = 327-32.7
+                }
+                $('.progress').css('stroke-dashoffset', progress);
+                $('#counter').html(count);
+            }
+            status = "stand"
+        } else if (prediction[1].probability.toFixed(2) == 1.00) {
+            status = "left"
+        }
+          else if (prediction[2].probability.toFixed(2) == 1.00) {
+            status = "right"
+        } else if (prediction[3].probability.toFixed(2) == 1.00) {
+             if (status == "left" || status == "stand") {
+              var audio = new Audio('bent.mp3');
+                //audio.play();
+             }
+             if (status == "right" || status == "stand") {
+              var audio = new Audio('bent.mp3');
+                //audio.play();
+            }
+            status = "bent"
+        }
+        for (let i = 0; i < maxPredictions; i++) {
+            const classPrediction =
+                prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+        }
+
+        // finally draw the poses
+        drawPose(pose);
+    }
+
+    function drawPose(pose) {
+        if (webcam.canvas) {
+            ctx.drawImage(webcam.canvas, 0, 0);
+            // draw the keypoints and skeleton
+            if (pose) {
+                const minPartConfidence = 0.5;
+                tmPose.drawKeypoints(pose.keypoints, minPartConfidence, ctx);
+                tmPose.drawSkeleton(pose.keypoints, minPartConfidence, ctx);
+            }
+        }
+    }
+   </script>
+  </head>
+  
+  <body class="size-1140">
+    <!-- HEADER -->
+    <header role="banner" class="position-absolute">    
+      <!-- Top Navigation -->
+      <nav class="background-transparent background-transparent-hightlight full-width sticky">
+        <div class="s-12 l-2">
+          <a href="main.html" class="logo">
+            <!-- Logo White Version -->
+            <img class="logo-white" src="img/COVIC20(white).png" alt="">
+            <!-- Logo Dark Version -->
+            <img class="logo-dark" src="img/COVIC20(dark).png" alt="">
+          </a>
+        </div>
+        <div class="top-nav s-12 l-10">
+          <p class="nav-text"></p>
+          <ul class="right chevron">
+            <li><a href="main.html">COVIC20</a></li>
+            <li><a href="teamintro.html">팀원소개</a></li>
+            <li><a>통계</a>
+              <ul>    
+                    <li><a href="Analize.html">연령/성별 별 운동치료받은 환자의 질병 분포도</a></li>
+                    <li><a href="Treatment cost.html">질병별 운동치료 평균금액(1회당)</a></li>
+                    <li><a href="yearbydisease.html">15~18년간 근골격계 질병 추이</a></li>
+              </ul>
+            </li>
+            <li><a href="Rehabilitation exercise.html">자가 재활 치료</a></li>
+            <li><a href="xnewronic.html">회사 소개</a></li>
+          </ul>
+        </div>
+      </nav>
+    </header>
+    
+    <!-- MAIN -->
+    <main role="main">
+      <!-- Content -->
+      <article>
+        <header class="section background-dark">
+          <div class="line"><center>  
+            <h1 class="text-white margin-top-bottom-40 text-size-60 text-line-height-1">어깨 재활치료</h1>
+            <p class="margin-bottom-0 text-size-16">상체 교차 운동</p></center>
+          </div>  
+        </header>
+        <div class="section background-white"> 
+          <div class="line margin-bottom-60">
+            <div class="margin">      
+            </div>
+          </div>
+
+          <div class="line">
+            <div class="margin">
+              <!-- Contact Form  칸나누기 1-->
+              <div class="small" style="display: inline; font-size: 50px;" >Counter &nbsp;&nbsp;&nbsp;</div>
+              <div class="text" style="display: inline;">
+                  <span id="counter" style="font-size: 50px;">0</span><div class="small" style="display: inline; font-size: 40px;">개</div>
+              </div>
+              <div class="s-12 m-6 l-6">
+                <p class="margin-top-30">
+    
+                    <div>
+                          <button class="btn btn-primary"type="button" onclick="init()">Start</button>
+                          <button class="btn btn-primary"type="button" onclick="location.href='Rehabilitation exercise.html'">Exit</a></button>
+                          <div><canvas id="canvas"></canvas></div>
+                          <div id="label-container"></div>
+                    </div>
+                </p>
+              </div>
+              
+              <!-- Contact Form  칸나누기 2-->
+
+              <div class="s-12 m-6 l-6">
+                <p class="margin-top-30">
+                  <iframe width="600" height="465" src="https://www.youtube.com/embed/4vEo08P72NY" 
+                  frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </p>
+              </div>
+              </div>
+            </div>    
+          </div>  
+        </div> 
+      </article>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+      <!-- Contact Us -->
+      <div class="background-primary padding text-center">
+        <p class="h1">Contact Us: 010 6410 4604</p>                                                                        
+      </div>
+      
+      <!-- Main Footer -->
+      <section class="background-dark full-width">
+        <!-- Map -->
+        <div class="s-12 m-12 l-6 margin-m-bottom-2x">
+          <div class="s-12 grayscale center">  	  
+            <iframe src="https://maps.google.com/maps?q=%EA%B0%95%EB%A6%89%EC%9B%90%EC%A3%BC%EB%8C%80%20%EC%9B%90%EC%A3%BC&t=&z=17&ie=UTF8&iwloc=&output=embed" width="100%" height="450" frameborder="0" style="border:0"></iframe>
+          </div>
+        </div>
+        
+        <!-- Collumn 2 -->
+        <div class="s-12 m-12 l-6 margin-m-bottom-2x">
+          <div class="padding-2x">
+            <div class="line">              
+              <div class="float-left">
+                  <i class="icon-sli-location-pin text-primary icon3x"></i>
+                </div>
+                <div class="margin-left-70 margin-bottom-30">
+                  <h3 class="margin-bottom-0">Company Address</h3>
+                  <p>강원도 원주시 흥업면 남원로 150<br>
+                     산학지원관 W4 2층 220호
+                  </p>               
+                </div>
+                <div class="float-left">
+                  <i class="icon-sli-envelope text-primary icon3x"></i>
+                </div>
+                <div class="margin-left-70 margin-bottom-30">
+                  <h3 class="margin-bottom-0">E-mail</h3>
+                  <p>xneuronic@gmail.com<br>
+                  </p>              
+                </div>
+                <div class="float-left">
+                  <i class="icon-sli-phone text-primary icon3x"></i>
+                </div>
+                <div class="margin-left-70">
+                  <h3 class="margin-bottom-0">Phone Numbers</h3>
+                  <p>010 6410 4604<br>
+                     010 3597 2798<br>
+                     010 6766 1440<br>
+                     010 3394 2957<br>
+                     010 9736 4574
+                  </p>             
+                </div>
+            </div>
+          </div>
+        </div>  
+      </section>
+      <hr class="break margin-top-bottom-0" style="border-color: rgba(0, 38, 51, 0.80);">
+      
+      <!-- Bottom Footer -->
+      <section class="padding background-dark full-width">
+        <div class="s-12 l-6">
+          <p class="text-size-12">상호: Neuronic | 대표자명: 박도영 </p>
+          <p class="text-size-12">주소: 강원도 원주시 흥업면 남원로 150 산학지원관 W4 220호 | 대표번호: +82-10-6410-4604</p>
+        </div>
+        <div class="s-12 l-6">
+          <a class="right text-size-12" href="http://www.myresponsee.com" title="Responsee - lightweight responsive framework">Design and coding<br> by COVIC-20 Team</a>
+        </div>
+      </section>
+    </footer>
+    <script type="text/javascript" src="js/responsee.js"></script>
+    <script type="text/javascript" src="owl-carousel/owl.carousel.js"></script>
+    <script type="text/javascript" src="js/template-scripts.js"></script>
+  </body>
+</html>
